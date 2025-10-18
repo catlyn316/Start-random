@@ -420,22 +420,66 @@ LocalPlayer.Idled:Connect(function()
     end
 end)
 
+-- ShiftLock功能
+local shiftLockEnabled = false
+local shiftLockConnection = nil
+
+local shiftLockBtn = createButton("Shiftlock: 關閉", 2, CommonButtonsScroll, 40)
+
+shiftLockBtn.MouseButton1Click:Connect(function()
+    shiftLockEnabled = not shiftLockEnabled
+    shiftLockBtn.Text = shiftLockEnabled and "Shiftlock: 開啟" or "Shiftlock: 關閉"
+    
+    if shiftLockEnabled then
+        shiftLockConnection = game:GetService("RunService").RenderStepped:Connect(function()
+            pcall(function()
+                local character = LocalPlayer.Character
+                if character and character:FindFirstChild("HumanoidRootPart") and character:FindFirstChild("Humanoid") then
+                    local hrp = character.HumanoidRootPart
+                    local humanoid = character.Humanoid
+                    local camera = Workspace.CurrentCamera
+                    
+                    -- 讓玩家面向視角前方
+                    local cameraDirection = camera.CFrame.LookVector
+                    local currentPos = hrp.Position
+                    
+                    -- 只在地面上或跳躍中時應用旋轉
+                    if humanoid:GetState() == Enum.HumanoidStateType.Landed or 
+                       humanoid:GetState() == Enum.HumanoidStateType.Running or
+                       humanoid:GetState() == Enum.HumanoidStateType.Jumping or
+                       humanoid:GetState() == Enum.HumanoidStateType.Freefall then
+                        
+                        -- 計算新的CFrame，只改變水平方向，保持垂直位置
+                        local newCFrame = CFrame.new(currentPos, currentPos + Vector3.new(cameraDirection.X, 0, cameraDirection.Z))
+                        hrp.CFrame = newCFrame
+                    end
+                end
+            end)
+        end)
+    else
+        if shiftLockConnection then
+            shiftLockConnection:Disconnect()
+            shiftLockConnection = nil
+        end
+    end
+end)
+
 -- Remote Spy Mobile按鈕
-local remoteSpyBtn = createButton("Remote Spy Mobile", 2, CommonButtonsScroll, 40)
+local remoteSpyBtn = createButton("Remote Spy Mobile", 3, CommonButtonsScroll, 40)
 
 remoteSpyBtn.MouseButton1Click:Connect(function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/wfrefdewwss/Discord-Custom-Status-24-7/refs/heads/main/requirements.txt"))()
 end)
 
 -- infyield按鈕
-local infyieldBtn = createButton("infyield", 3, CommonButtonsScroll, 40)
+local infyieldBtn = createButton("infyield", 4, CommonButtonsScroll, 40)
 
 infyieldBtn.MouseButton1Click:Connect(function()
     loadstring(game:HttpGet('https://raw.githubusercontent.com/edgeiy/infiniteyield/master/source'))()
 end)
 
 -- bringfly按鈕
-local bringflyBtn = createButton("bringfly", 4, CommonButtonsScroll, 40)
+local bringflyBtn = createButton("bringfly", 5, CommonButtonsScroll, 40)
 
 bringflyBtn.MouseButton1Click:Connect(function()
     loadstring(game:HttpGet('https://raw.githubusercontent.com/catlyn316/Bring-fly/refs/heads/main/Bring%20fly'))()
@@ -446,6 +490,7 @@ wait(0.1)
 
 local orderedElements = {
     antiAFKBtn,
+    shiftLockBtn,
     remoteSpyBtn,
     infyieldBtn,
     bringflyBtn
@@ -562,66 +607,16 @@ end)
 
 -- 傳送到少人服按鈕
 OtherButtons[2].MouseButton1Click:Connect(function()
-    OtherButtons[2].Text = "搜尋中..."
+    OtherButtons[2].Text = "跳服中..."
     OtherButtons[2].TextColor3 = Color3.fromRGB(200, 200, 200)
-    
-    task.spawn(function()
-        local servers = getServerList()
-        
-        if #servers == 0 then
-            OtherButtons[2].Text = "未找到伺服器"
-            task.wait(2)
-            OtherButtons[2].Text = "傳送到少人服"
-            OtherButtons[2].TextColor3 = Color3.fromRGB(255, 255, 255)
-            return
-        end
-        
-        local leastPlayersServer = servers[1]
-        for _, server in pairs(servers) do
-            if server.playing < leastPlayersServer.playing then
-                leastPlayersServer = server
-            end
-        end
-        
-        OtherButtons[2].Text = "傳送中..."
-        task.wait(0.5)
-        joinServer(leastPlayersServer.id)
-    end)
+    joinSmallestServer()
 end)
 
 -- 傳送到多人服按鈕
 OtherButtons[3].MouseButton1Click:Connect(function()
-    OtherButtons[3].Text = "搜尋中..."
+    OtherButtons[3].Text = "跳服中..."
     OtherButtons[3].TextColor3 = Color3.fromRGB(200, 200, 200)
-    
-    task.spawn(function()
-        local servers = getServerList()
-        
-        if #servers == 0 then
-            OtherButtons[3].Text = "未找到伺服器"
-            task.wait(2)
-            OtherButtons[3].Text = "傳送到多人服"
-            OtherButtons[3].TextColor3 = Color3.fromRGB(255, 255, 255)
-            return
-        end
-        
-        local maxPlayers = game.Players.MaxPlayers
-        local targetPlayers = math.floor(maxPlayers * 3 / 4)
-        local bestServer = servers[1]
-        local bestDifference = math.abs(bestServer.playing - targetPlayers)
-        
-        for _, server in pairs(servers) do
-            local difference = math.abs(server.playing - targetPlayers)
-            if difference < bestDifference then
-                bestServer = server
-                bestDifference = difference
-            end
-        end
-        
-        OtherButtons[3].Text = "傳送中..."
-        task.wait(0.5)
-        joinServer(bestServer.id)
-    end)
+    joinMostPlayedServer()
 end)
 
 -- 其他分區的UIListLayout
@@ -678,6 +673,11 @@ local function cleanUp()
     lockedPosition = nil
     previousPosition = nil
     isAtSafeZone = false
+    shiftLockEnabled = false
+    if shiftLockConnection then
+        shiftLockConnection:Disconnect()
+        shiftLockConnection = nil
+    end
 end
 
 -- 添加清理事件
