@@ -3,6 +3,7 @@ local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
 local LocalPlayer = Players.LocalPlayer
 local HttpService = game:GetService("HttpService")
+local ProximityPromptService = game:GetService("ProximityPromptService")
 
 -- 儲存自定義名稱
 local savedName = "catlyn"
@@ -401,27 +402,8 @@ local UIListLayout = Instance.new("UIListLayout", CommonButtonsScroll)
 UIListLayout.Padding = UDim.new(0, 5)
 UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 
--- 防掛機功能
-local antiAFK = false
-local virtualUser = game:GetService("VirtualUser")
-
-local antiAFKBtn = createButton("防掛機: 關", 1, CommonButtonsScroll, 40)
-
-antiAFKBtn.MouseButton1Click:Connect(function()
-    antiAFK = not antiAFK
-    antiAFKBtn.Text = antiAFK and "防掛機: 開" or "防掛機: 關"
-end)
-
-LocalPlayer.Idled:Connect(function()
-    if antiAFK then
-        virtualUser:Button2Down(Vector2.new(0, 0), Workspace.CurrentCamera.CFrame)
-        task.wait(1)
-        virtualUser:Button2Up(Vector2.new(0, 0), Workspace.CurrentCamera.CFrame)
-    end
-end)
-
 -- ShiftLock功能（使用外部腳本）
-local shiftLockBtn = createButton("Shiftlock: 關閉", 2, CommonButtonsScroll, 40)
+local shiftLockBtn = createButton("Shiftlock: 關閉", 1, CommonButtonsScroll, 40)
 
 shiftLockBtn.MouseButton1Click:Connect(function()
     loadstring(game:HttpGet("https://github.com/ltseverydayyou/uuuuuuu/blob/main/shiftlock?raw=true"))()
@@ -430,36 +412,70 @@ shiftLockBtn.MouseButton1Click:Connect(function()
     shiftLockBtn.Text = "Shiftlock: 關閉"
 end)
 
--- Remote Spy Mobile按鈕
-local remoteSpyBtn = createButton("Remote Spy Mobile", 3, CommonButtonsScroll, 40)
-
-remoteSpyBtn.MouseButton1Click:Connect(function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/wfrefdewwss/Discord-Custom-Status-24-7/refs/heads/main/requirements.txt"))()
-end)
-
 -- infyield按鈕
-local infyieldBtn = createButton("infyield", 4, CommonButtonsScroll, 40)
+local infyieldBtn = createButton("infyield", 2, CommonButtonsScroll, 40)
 
 infyieldBtn.MouseButton1Click:Connect(function()
     loadstring(game:HttpGet('https://raw.githubusercontent.com/edgeiy/infiniteyield/master/source'))()
 end)
 
--- bringfly按鈕
-local bringflyBtn = createButton("bringfly", 5, CommonButtonsScroll, 40)
+-- Freecam/ClickTP 按鈕
+local freecamBtn = createButton("Freecam/ClickTP", 3, CommonButtonsScroll, 40)
 
-bringflyBtn.MouseButton1Click:Connect(function()
-    loadstring(game:HttpGet('https://raw.githubusercontent.com/catlyn316/Bring-fly/refs/heads/main/Bring%20fly'))()
+freecamBtn.MouseButton1Click:Connect(function()
+    loadstring(game:HttpGet('https://raw.githubusercontent.com/catlyn316/Freecam-script/refs/heads/main/Fc'))()
+    freecamBtn.Text = "已載入"
+    task.wait(2)
+    freecamBtn.Text = "Freecam/ClickTP"
+end)
+
+-- 自動觸發Prompt功能
+local autoPrompt = false
+local promptConnection = nil
+
+local autoPromptBtn = createButton("自動觸發Prompt: 關", 4, CommonButtonsScroll, 40)
+
+autoPromptBtn.MouseButton1Click:Connect(function()
+    autoPrompt = not autoPrompt
+    autoPromptBtn.Text = autoPrompt and "自動觸發Prompt: 開" or "自動觸發Prompt: 關"
+    
+    if autoPrompt then
+        promptConnection = game:GetService("RunService").Heartbeat:Connect(function()
+            pcall(function()
+                local character = LocalPlayer.Character
+                if character and character:FindFirstChild("HumanoidRootPart") then
+                    local hrp = character.HumanoidRootPart
+                    
+                    for _, prompt in pairs(workspace:GetDescendants()) do
+                        if prompt:IsA("ProximityPrompt") and prompt.Enabled then
+                            local promptParent = prompt.Parent
+                            if promptParent then
+                                local distance = (hrp.Position - promptParent.Position).Magnitude
+                                if distance <= prompt.MaxActivationDistance then
+                                    fireproximityprompt(prompt)
+                                end
+                            end
+                        end
+                    end
+                end
+            end)
+        end)
+    else
+        if promptConnection then
+            promptConnection:Disconnect()
+            promptConnection = nil
+        end
+    end
 end)
 
 -- 重新排序所有按鈕
 wait(0.1)
 
 local orderedElements = {
-    antiAFKBtn,
     shiftLockBtn,
-    remoteSpyBtn,
     infyieldBtn,
-    bringflyBtn
+    freecamBtn,
+    autoPromptBtn
 }
 
 for i, element in ipairs(orderedElements) do
@@ -531,9 +547,11 @@ end
 -- 其他分區 - 位置固定功能
 local OtherButtons = {
     createButton("位置固定: 關", 1, OtherScroll, 40),
-    createButton("Freecam", 2, OtherScroll, 40),
-    createButton("傳送到少人服", 3, OtherScroll, 40),
-    createButton("傳送到多人服", 4, OtherScroll, 40),
+    createButton("防掛機: 關", 2, OtherScroll, 40),
+    createButton("Remote Spy Mobile", 3, OtherScroll, 40),
+    createButton("bringfly", 4, OtherScroll, 40),
+    createButton("傳送到少人服", 5, OtherScroll, 40),
+    createButton("傳送到多人服", 6, OtherScroll, 40),
 }
 
 -- 位置固定相關變量
@@ -572,25 +590,44 @@ OtherButtons[1].MouseButton1Click:Connect(function()
     end
 end)
 
--- Freecam 按鈕
+-- 防掛機功能
+local antiAFK = false
+local virtualUser = game:GetService("VirtualUser")
+
 OtherButtons[2].MouseButton1Click:Connect(function()
-    loadstring(game:HttpGet('https://raw.githubusercontent.com/catlyn316/Freecam-script/refs/heads/main/Fc'))()
-    OtherButtons[2].Text = "已載入"
-    task.wait(2)
-    OtherButtons[2].Text = "Freecam"
+    antiAFK = not antiAFK
+    OtherButtons[2].Text = antiAFK and "防掛機: 開" or "防掛機: 關"
+end)
+
+LocalPlayer.Idled:Connect(function()
+    if antiAFK then
+        virtualUser:Button2Down(Vector2.new(0, 0), Workspace.CurrentCamera.CFrame)
+        task.wait(1)
+        virtualUser:Button2Up(Vector2.new(0, 0), Workspace.CurrentCamera.CFrame)
+    end
+end)
+
+-- Remote Spy Mobile按鈕
+OtherButtons[3].MouseButton1Click:Connect(function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/wfrefdewwss/Discord-Custom-Status-24-7/refs/heads/main/requirements.txt"))()
+end)
+
+-- bringfly按鈕
+OtherButtons[4].MouseButton1Click:Connect(function()
+    loadstring(game:HttpGet('https://raw.githubusercontent.com/catlyn316/Bring-fly/refs/heads/main/Bring%20fly'))()
 end)
 
 -- 傳送到少人服按鈕
-OtherButtons[3].MouseButton1Click:Connect(function()
-    OtherButtons[3].Text = "跳服中..."
-    OtherButtons[3].TextColor3 = Color3.fromRGB(200, 200, 200)
+OtherButtons[5].MouseButton1Click:Connect(function()
+    OtherButtons[5].Text = "跳服中..."
+    OtherButtons[5].TextColor3 = Color3.fromRGB(200, 200, 200)
     joinSmallestServer()
 end)
 
 -- 傳送到多人服按鈕
-OtherButtons[4].MouseButton1Click:Connect(function()
-    OtherButtons[4].Text = "跳服中..."
-    OtherButtons[4].TextColor3 = Color3.fromRGB(200, 200, 200)
+OtherButtons[6].MouseButton1Click:Connect(function()
+    OtherButtons[6].Text = "跳服中..."
+    OtherButtons[6].TextColor3 = Color3.fromRGB(200, 200, 200)
     joinMostPlayedServer()
 end)
 
@@ -604,6 +641,8 @@ OtherButtons[1].LayoutOrder = 1
 OtherButtons[2].LayoutOrder = 2
 OtherButtons[3].LayoutOrder = 3
 OtherButtons[4].LayoutOrder = 4
+OtherButtons[5].LayoutOrder = 5
+OtherButtons[6].LayoutOrder = 6
 
 -- 分區切換
 Section1.MouseButton1Click:Connect(function()
@@ -649,6 +688,12 @@ local function cleanUp()
     lockedPosition = nil
     previousPosition = nil
     isAtSafeZone = false
+    antiAFK = false
+    autoPrompt = false
+    if promptConnection then
+        promptConnection:Disconnect()
+        promptConnection = nil
+    end
 end
 
 -- 添加清理事件
