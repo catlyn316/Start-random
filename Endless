@@ -130,7 +130,7 @@ local Title = Instance.new("TextLabel", Frame)
 Title.Size = UDim2.new(1, -80, 0, 50)
 Title.Position = UDim2.new(0, 15, 0, 0)
 Title.BackgroundTransparency = 1
-Title.Text = "✨ 貓玲的腳本區 ✨ v0.51"
+Title.Text = "✨ 貓玲的腳本區 ✨ v0.52"
 Title.Font = Enum.Font.GothamBold
 Title.TextSize = 22
 Title.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -403,13 +403,11 @@ UIListLayout.Padding = UDim.new(0, 5)
 UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 
 -- ShiftLock功能（使用外部腳本）
-local shiftLockBtn = createButton("Shiftlock: 關閉", 1, CommonButtonsScroll, 40)
+local shiftLockBtn = createButton("鎖定+速度/跳躍: 關閉", 1, CommonButtonsScroll, 40)
 
 shiftLockBtn.MouseButton1Click:Connect(function()
-    loadstring(game:HttpGet("https://github.com/ltseverydayyou/uuuuuuu/blob/main/shiftlock?raw=true"))()
-    shiftLockBtn.Text = "Shiftlock: 已載入"
-    task.wait(2)
-    shiftLockBtn.Text = "Shiftlock: 關閉"
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/catlyn316/Shiftlock-wsjp/refs/heads/main/Mix"))()
+    shiftLockBtn.Text = "鎖定+速度/跳躍: 已載入"
 end)
 
 -- infyield按鈕
