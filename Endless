@@ -430,14 +430,23 @@ end)
 -- 自動觸發Prompt功能
 local autoPrompt = false
 local promptConnection = nil
-
 local autoPromptBtn = createButton("自動觸發Prompt: 關", 4, CommonButtonsScroll, 40)
+local isTriggering = false
 
 autoPromptBtn.MouseButton1Click:Connect(function()
+    -- 如果正在觸發中,則不執行任何操作
+    if isTriggering then
+        return
+    end
+    
     autoPrompt = not autoPrompt
-    autoPromptBtn.Text = autoPrompt and "自動觸發Prompt: 開" or "自動觸發Prompt: 關"
     
     if autoPrompt then
+        -- 設置為開啟狀態
+        autoPromptBtn.Text = "自動觸發Prompt: 開"
+        isTriggering = true
+        
+        -- 開始觸發Prompt
         promptConnection = game:GetService("RunService").Heartbeat:Connect(function()
             pcall(function()
                 local character = LocalPlayer.Character
@@ -458,11 +467,23 @@ autoPromptBtn.MouseButton1Click:Connect(function()
                 end
             end)
         end)
-    else
+        
+        -- 顯示"已觸發"
+        autoPromptBtn.Text = "自動觸發Prompt: 已觸發"
+        
+        -- 1秒後自動關閉
+        task.wait(1)
+        
+        -- 斷開連接
         if promptConnection then
             promptConnection:Disconnect()
             promptConnection = nil
         end
+        
+        -- 重置狀態
+        autoPrompt = false
+        isTriggering = false
+        autoPromptBtn.Text = "自動觸發Prompt: 關"
     end
 end)
 
