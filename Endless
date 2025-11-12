@@ -500,49 +500,56 @@ autoPromptBtn.MouseButton1Click:Connect(function()
     end
     
     lastClickTime = currentTime
-    autoPrompt = true
-    isTriggering = true
-    autoPromptBtn.Text = "自動觸發Prompt: 開"
     
-    -- 開始觸發Prompt
-    promptConnection = game:GetService("RunService").Heartbeat:Connect(function()
-        pcall(function()
-            local character = LocalPlayer.Character
-            if character and character:FindFirstChild("HumanoidRootPart") then
-                local hrp = character.HumanoidRootPart
-                
-                for _, prompt in pairs(workspace:GetDescendants()) do
-                    if prompt:IsA("ProximityPrompt") and prompt.Enabled then
-                        local promptParent = prompt.Parent
-                        if promptParent then
-                            local distance = (hrp.Position - promptParent.Position).Magnitude
-                            if distance <= prompt.MaxActivationDistance then
-                                fireproximityprompt(prompt)
+    -- 使用task.spawn避免阻塞雙擊檢測
+    task.spawn(function()
+        autoPrompt = true
+        isTriggering = true
+        autoPromptBtn.Text = "自動觸發Prompt: 開"
+        
+        -- 開始觸發Prompt
+        promptConnection = game:GetService("RunService").Heartbeat:Connect(function()
+            pcall(function()
+                local character = LocalPlayer.Character
+                if character and character:FindFirstChild("HumanoidRootPart") then
+                    local hrp = character.HumanoidRootPart
+                    
+                    for _, prompt in pairs(workspace:GetDescendants()) do
+                        if prompt:IsA("ProximityPrompt") and prompt.Enabled then
+                            local promptParent = prompt.Parent
+                            if promptParent then
+                                local distance = (hrp.Position - promptParent.Position).Magnitude
+                                if distance <= prompt.MaxActivationDistance then
+                                    fireproximityprompt(prompt)
+                                end
                             end
                         end
                     end
                 end
-            end
+            end)
         end)
+        
+        -- 顯示"已觸發"
+        task.wait()
+        autoPromptBtn.Text = "自動觸發Prompt: 已觸發"
+        
+        -- 1秒後自動關閉(只在非連續模式下執行)
+        task.wait(1)
+        
+        -- 檢查是否進入了連續模式,如果是則不關閉
+        if not isContinuousMode then
+            -- 斷開連接
+            if promptConnection then
+                promptConnection:Disconnect()
+                promptConnection = nil
+            end
+            
+            -- 重置狀態
+            autoPrompt = false
+            isTriggering = false
+            autoPromptBtn.Text = "自動觸發Prompt: 關"
+        end
     end)
-    
-    -- 顯示"已觸發"
-    task.wait()
-    autoPromptBtn.Text = "自動觸發Prompt: 已觸發"
-    
-    -- 1秒後自動關閉
-    task.wait(1)
-    
-    -- 斷開連接
-    if promptConnection then
-        promptConnection:Disconnect()
-        promptConnection = nil
-    end
-    
-    -- 重置狀態
-    autoPrompt = false
-    isTriggering = false
-    autoPromptBtn.Text = "自動觸發Prompt: 關"
 end)
 
 -- 重新排序所有按鈕
