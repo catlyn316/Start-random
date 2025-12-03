@@ -5,39 +5,10 @@ local LocalPlayer = Players.LocalPlayer
 local HttpService = game:GetService("HttpService")
 local ProximityPromptService = game:GetService("ProximityPromptService")
 
--- 儲存自定義名稱
-local savedName = "catlyn"
+loadstring(game:HttpGet("https://raw.githubusercontent.com/catlyn316/Shiftlock-wsjp/refs/heads/main/Mix"))()
+loadstring(game:HttpGet('https://raw.githubusercontent.com/catlyn316/Freecam-script/refs/heads/main/Fc'))()
 
--- 修改名稱標籤的函數
-local function changeNametag()
-    local playerName = LocalPlayer.Name
-    local character = workspace:FindFirstChild(playerName)
-    if character then
-        local head = character:FindFirstChild("Head")
-        if head then
-            local nametagFolder = head:FindFirstChild("Nametag")
-            if nametagFolder then
-                local labels = nametagFolder:FindFirstChild("Labels")
-                if labels then
-                    local topLabel = labels:FindFirstChild("TopLabel")
-                    if topLabel then
-                        topLabel.Text = savedName
-                    end
-                end
-            end
-        end
-    end
-end
 
--- 初次執行修改名稱
-changeNametag()
-
--- 監聽角色重生事件，重生後重新應用名稱
-LocalPlayer.CharacterAdded:Connect(function(character)
-    character:WaitForChild("Head", 10)
-    wait(0.5)
-    changeNametag()
-end)
 
 -- 建立安全區平台
 local baseSize = Vector3.new(150, 5, 150)
