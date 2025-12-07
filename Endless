@@ -101,7 +101,7 @@ local Title = Instance.new("TextLabel", Frame)
 Title.Size = UDim2.new(1, -80, 0, 50)
 Title.Position = UDim2.new(0, 15, 0, 0)
 Title.BackgroundTransparency = 1
-Title.Text = "✨ 貓玲的腳本區 ✨ v0.52"
+Title.Text = "✨ 貓玲的腳本區 ✨ v0.53"
 Title.Font = Enum.Font.GothamBold
 Title.TextSize = 22
 Title.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -240,10 +240,10 @@ local function createSectionButton(text, order, parent)
     return btn
 end
 
--- 重新創建分區按鈕
-local Section1 = createSectionButton("🚀 傳送", 1, SideBar)
-local Section2 = createSectionButton("⚙️ 常用", 2, SideBar)
-local Section3 = createSectionButton("🔧 其他", 3, SideBar)
+-- 重新創建分區按鈕 (順序已調整: 常用 -> 其他 -> 傳送)
+local Section2 = createSectionButton("⚙️ 常用", 1, SideBar)
+local Section3 = createSectionButton("🔧 其他", 2, SideBar)
+local Section1 = createSectionButton("🚀 傳送", 3, SideBar)
 
 -- 簡單高亮文字的一般按鈕樣式
 local function createButton(text, order, parent, spacing)
@@ -285,7 +285,7 @@ TPScroll.Size = UDim2.new(1, 0, 1, 0)
 TPScroll.CanvasSize = UDim2.new(0, 0, 0, 100)
 TPScroll.ScrollBarThickness = 6
 TPScroll.BackgroundTransparency = 1
-TPScroll.Visible = true
+TPScroll.Visible = false -- 預設為 false (因為現在常用區是第一個)
 TPScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
 TPScroll.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
 TPScroll.ScrollingDirection = Enum.ScrollingDirection.Y
@@ -296,7 +296,7 @@ CommonButtonsScroll.Size = UDim2.new(1, 0, 1, 0)
 CommonButtonsScroll.CanvasSize = UDim2.new(0, 0, 0, 400)
 CommonButtonsScroll.ScrollBarThickness = 6
 CommonButtonsScroll.BackgroundTransparency = 1
-CommonButtonsScroll.Visible = false
+CommonButtonsScroll.Visible = true -- 預設為 true (現在是第一個)
 CommonButtonsScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
 CommonButtonsScroll.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
 CommonButtonsScroll.ScrollingDirection = Enum.ScrollingDirection.Y
@@ -607,6 +607,8 @@ local OtherButtons = {
     createButton("bringfly", 4, OtherScroll, 40),
     createButton("傳送到少人服", 5, OtherScroll, 40),
     createButton("傳送到多人服", 6, OtherScroll, 40),
+    createButton("彈飛無錨定物品", 7, OtherScroll, 40),
+    createButton("音樂箱", 8, OtherScroll, 40),
 }
 
 -- 位置固定相關變量
@@ -686,6 +688,16 @@ OtherButtons[6].MouseButton1Click:Connect(function()
     joinMostPlayedServer()
 end)
 
+-- 新增：彈飛無錨定物品功能
+OtherButtons[7].MouseButton1Click:Connect(function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/catlyn316/Ricochet/refs/heads/main/Ricochet"))()
+end)
+
+-- 新增：音樂箱功能
+OtherButtons[8].MouseButton1Click:Connect(function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/catlyn316/Music-box/refs/heads/main/Music%20box"))()
+end)
+
 -- 其他分區的UIListLayout
 local otherLayout = Instance.new("UIListLayout", OtherScroll)
 otherLayout.Padding = UDim.new(0, 5)
@@ -698,40 +710,44 @@ OtherButtons[3].LayoutOrder = 3
 OtherButtons[4].LayoutOrder = 4
 OtherButtons[5].LayoutOrder = 5
 OtherButtons[6].LayoutOrder = 6
+OtherButtons[7].LayoutOrder = 7
+OtherButtons[8].LayoutOrder = 8
 
--- 分區切換
-Section1.MouseButton1Click:Connect(function()
-    TPScroll.Visible = true
-    CommonButtonsScroll.Visible = false
-    OtherScroll.Visible = false
-    
-    Section1.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-    Section2.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-    Section3.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-end)
-
+-- 分區切換 (邏輯已調整以反映新順序：常用 -> 其他 -> 傳送)
 Section2.MouseButton1Click:Connect(function()
-    TPScroll.Visible = false
     CommonButtonsScroll.Visible = true
     OtherScroll.Visible = false
+    TPScroll.Visible = false
     
-    Section1.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
     Section2.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
     Section3.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    Section1.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 end)
 
 Section3.MouseButton1Click:Connect(function()
-    TPScroll.Visible = false
     CommonButtonsScroll.Visible = false
     OtherScroll.Visible = true
+    TPScroll.Visible = false
     
-    Section1.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
     Section2.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
     Section3.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+    Section1.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 end)
 
--- 初始化高亮第一個分區按鈕
-Section1.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+Section1.MouseButton1Click:Connect(function()
+    CommonButtonsScroll.Visible = false
+    OtherScroll.Visible = false
+    TPScroll.Visible = true
+    
+    Section2.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    Section3.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    Section1.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+end)
+
+-- 初始化高亮第一個分區按鈕 (現在是常用區 Section2)
+Section2.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+Section1.BackgroundColor3 = Color3.fromRGB(85, 85, 105) -- 確保非選中的按鈕顏色正確
+Section3.BackgroundColor3 = Color3.fromRGB(85, 85, 105)
 
 -- 清理函數
 local function cleanUp()
