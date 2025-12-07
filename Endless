@@ -101,7 +101,7 @@ local Title = Instance.new("TextLabel", Frame)
 Title.Size = UDim2.new(1, -80, 0, 50)
 Title.Position = UDim2.new(0, 15, 0, 0)
 Title.BackgroundTransparency = 1
-Title.Text = "✨ 貓玲的腳本區 ✨ v0.53"
+Title.Text = "✨ 貓玲的腳本區 ✨ v0.54"
 Title.Font = Enum.Font.GothamBold
 Title.TextSize = 22
 Title.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -599,26 +599,66 @@ local function joinMostPlayedServer()
     end
 end
 
--- 其他分區 - 位置固定功能
+-- 其他分區 - 按照新順序創建按鈕
 local OtherButtons = {
-    createButton("位置固定: 關", 1, OtherScroll, 40),
-    createButton("防掛機: 關", 2, OtherScroll, 40),
-    createButton("Remote Spy Mobile", 3, OtherScroll, 40),
-    createButton("bringfly", 4, OtherScroll, 40),
-    createButton("傳送到少人服", 5, OtherScroll, 40),
-    createButton("傳送到多人服", 6, OtherScroll, 40),
-    createButton("彈飛無錨定物品", 7, OtherScroll, 40),
-    createButton("音樂箱", 8, OtherScroll, 40),
+    createButton("音樂箱", 1, OtherScroll, 40),
+    createButton("透明漂浮平板", 2, OtherScroll, 40),
+    createButton("彈飛無錨定物品", 3, OtherScroll, 40),
+    createButton("傳送到少人服", 4, OtherScroll, 40),
+    createButton("傳送到多人服", 5, OtherScroll, 40),
+    createButton("Remote Spy Mobile", 6, OtherScroll, 40),
+    createButton("bringfly", 7, OtherScroll, 40),
+    createButton("位置固定: 關", 8, OtherScroll, 40),
+    createButton("防掛機: 關", 9, OtherScroll, 40),
 }
+
+-- 音樂箱功能
+OtherButtons[1].MouseButton1Click:Connect(function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/catlyn316/Music-box/refs/heads/main/Music%20box"))()
+end)
+
+-- 透明漂浮平板功能
+OtherButtons[2].MouseButton1Click:Connect(function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/catlyn316/Float-platform/refs/heads/main/Up%20down"))()
+end)
+
+-- 彈飛無錨定物品功能
+OtherButtons[3].MouseButton1Click:Connect(function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/catlyn316/Ricochet/refs/heads/main/Ricochet"))()
+end)
+
+-- 傳送到少人服按鈕
+OtherButtons[4].MouseButton1Click:Connect(function()
+    OtherButtons[4].Text = "跳服中..."
+    OtherButtons[4].TextColor3 = Color3.fromRGB(200, 200, 200)
+    joinSmallestServer()
+end)
+
+-- 傳送到多人服按鈕
+OtherButtons[5].MouseButton1Click:Connect(function()
+    OtherButtons[5].Text = "跳服中..."
+    OtherButtons[5].TextColor3 = Color3.fromRGB(200, 200, 200)
+    joinMostPlayedServer()
+end)
+
+-- Remote Spy Mobile按鈕
+OtherButtons[6].MouseButton1Click:Connect(function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/wfrefdewwss/Discord-Custom-Status-24-7/refs/heads/main/requirements.txt"))()
+end)
+
+-- bringfly按鈕
+OtherButtons[7].MouseButton1Click:Connect(function()
+    loadstring(game:HttpGet('https://raw.githubusercontent.com/catlyn316/Bring-fly/refs/heads/main/Bring%20fly'))()
+end)
 
 -- 位置固定相關變量
 local positionLocked = false
 local lockedPosition = nil
 local lockConnection = nil
 
-OtherButtons[1].MouseButton1Click:Connect(function()
+OtherButtons[8].MouseButton1Click:Connect(function()
     positionLocked = not positionLocked
-    OtherButtons[1].Text = positionLocked and "位置固定: 開" or "位置固定: 關"
+    OtherButtons[8].Text = positionLocked and "位置固定: 開" or "位置固定: 關"
     
     if positionLocked then
         local character = LocalPlayer.Character
@@ -651,9 +691,9 @@ end)
 local antiAFK = false
 local virtualUser = game:GetService("VirtualUser")
 
-OtherButtons[2].MouseButton1Click:Connect(function()
+OtherButtons[9].MouseButton1Click:Connect(function()
     antiAFK = not antiAFK
-    OtherButtons[2].Text = antiAFK and "防掛機: 開" or "防掛機: 關"
+    OtherButtons[9].Text = antiAFK and "防掛機: 開" or "防掛機: 關"
 end)
 
 LocalPlayer.Idled:Connect(function()
@@ -662,40 +702,6 @@ LocalPlayer.Idled:Connect(function()
         task.wait(1)
         virtualUser:Button2Up(Vector2.new(0, 0), Workspace.CurrentCamera.CFrame)
     end
-end)
-
--- Remote Spy Mobile按鈕
-OtherButtons[3].MouseButton1Click:Connect(function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/wfrefdewwss/Discord-Custom-Status-24-7/refs/heads/main/requirements.txt"))()
-end)
-
--- bringfly按鈕
-OtherButtons[4].MouseButton1Click:Connect(function()
-    loadstring(game:HttpGet('https://raw.githubusercontent.com/catlyn316/Bring-fly/refs/heads/main/Bring%20fly'))()
-end)
-
--- 傳送到少人服按鈕
-OtherButtons[5].MouseButton1Click:Connect(function()
-    OtherButtons[5].Text = "跳服中..."
-    OtherButtons[5].TextColor3 = Color3.fromRGB(200, 200, 200)
-    joinSmallestServer()
-end)
-
--- 傳送到多人服按鈕
-OtherButtons[6].MouseButton1Click:Connect(function()
-    OtherButtons[6].Text = "跳服中..."
-    OtherButtons[6].TextColor3 = Color3.fromRGB(200, 200, 200)
-    joinMostPlayedServer()
-end)
-
--- 新增：彈飛無錨定物品功能
-OtherButtons[7].MouseButton1Click:Connect(function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/catlyn316/Ricochet/refs/heads/main/Ricochet"))()
-end)
-
--- 新增：音樂箱功能
-OtherButtons[8].MouseButton1Click:Connect(function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/catlyn316/Music-box/refs/heads/main/Music%20box"))()
 end)
 
 -- 其他分區的UIListLayout
@@ -712,6 +718,7 @@ OtherButtons[5].LayoutOrder = 5
 OtherButtons[6].LayoutOrder = 6
 OtherButtons[7].LayoutOrder = 7
 OtherButtons[8].LayoutOrder = 8
+OtherButtons[9].LayoutOrder = 9
 
 -- 分區切換 (邏輯已調整以反映新順序：常用 -> 其他 -> 傳送)
 Section2.MouseButton1Click:Connect(function()
