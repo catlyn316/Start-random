@@ -5,10 +5,10 @@ local LocalPlayer = Players.LocalPlayer
 local HttpService = game:GetService("HttpService")
 local ProximityPromptService = game:GetService("ProximityPromptService")
 
+-- 預先加載 (保留原本開頭的加載，若不需要開局直接載入可註解掉)
 loadstring(game:HttpGet("https://raw.githubusercontent.com/catlyn316/Shiftlock-wsjp/refs/heads/main/Mix"))()
 loadstring(game:HttpGet('https://raw.githubusercontent.com/catlyn316/Freecam-script/refs/heads/main/Fc'))()
-
-
+loadstring(game:HttpGet("https://raw.githubusercontent.com/catlyn316/Do-something-I-think-of/refs/heads/main/lol"))()
 
 -- 建立安全區平台
 local baseSize = Vector3.new(150, 5, 150)
@@ -101,7 +101,7 @@ local Title = Instance.new("TextLabel", Frame)
 Title.Size = UDim2.new(1, -80, 0, 50)
 Title.Position = UDim2.new(0, 15, 0, 0)
 Title.BackgroundTransparency = 1
-Title.Text = "✨ 貓玲的腳本區 ✨ v0.55"
+Title.Text = "✨ 貓玲的腳本區 ✨ v0.6" -- 版本號微調
 Title.Font = Enum.Font.GothamBold
 Title.TextSize = 22
 Title.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -285,7 +285,7 @@ TPScroll.Size = UDim2.new(1, 0, 1, 0)
 TPScroll.CanvasSize = UDim2.new(0, 0, 0, 100)
 TPScroll.ScrollBarThickness = 6
 TPScroll.BackgroundTransparency = 1
-TPScroll.Visible = false -- 預設為 false (因為現在常用區是第一個)
+TPScroll.Visible = false 
 TPScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
 TPScroll.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
 TPScroll.ScrollingDirection = Enum.ScrollingDirection.Y
@@ -293,10 +293,10 @@ TPScroll.ScrollingDirection = Enum.ScrollingDirection.Y
 -- 常用分區
 local CommonButtonsScroll = Instance.new("ScrollingFrame", Content)
 CommonButtonsScroll.Size = UDim2.new(1, 0, 1, 0)
-CommonButtonsScroll.CanvasSize = UDim2.new(0, 0, 0, 400)
+CommonButtonsScroll.CanvasSize = UDim2.new(0, 0, 0, 450) -- 稍微增加高度以容納新按鈕
 CommonButtonsScroll.ScrollBarThickness = 6
 CommonButtonsScroll.BackgroundTransparency = 1
-CommonButtonsScroll.Visible = true -- 預設為 true (現在是第一個)
+CommonButtonsScroll.Visible = true 
 CommonButtonsScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
 CommonButtonsScroll.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
 CommonButtonsScroll.ScrollingDirection = Enum.ScrollingDirection.Y
@@ -344,23 +344,17 @@ TPButtons[1].MouseButton1Click:Connect(function()
     local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
     if hrp then
         if not isAtSafeZone then
-            -- 記錄當前位置並傳送到安全區
             previousPosition = hrp.Position
             hrp.CFrame = CFrame.new(5122, 124, 9513)
             isAtSafeZone = true
             TPButtons[1].Text = "已傳送"
-            
-            -- 3秒後恢復按鈕文字
             task.wait(3)
             TPButtons[1].Text = "安全區"
         else
-            -- 如果已在安全區,傳送回之前的位置
             if previousPosition then
                 hrp.CFrame = CFrame.new(previousPosition)
                 isAtSafeZone = false
                 TPButtons[1].Text = "回安全區"
-                
-                -- 3秒後恢復按鈕文字
                 task.wait(3)
                 TPButtons[1].Text = "安全區"
             end
@@ -373,23 +367,35 @@ local UIListLayout = Instance.new("UIListLayout", CommonButtonsScroll)
 UIListLayout.Padding = UDim.new(0, 5)
 UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 
--- ShiftLock功能（使用外部腳本）
-local shiftLockBtn = createButton("鎖定+速度/跳躍: 關閉", 1, CommonButtonsScroll, 40)
+-- ================= 修改處開始：常用分區按鈕拆分 =================
 
-shiftLockBtn.MouseButton1Click:Connect(function()
+-- 1. Shiftlock + ESP 按鈕 (使用原連結)
+local shiftLockEspBtn = createButton("Shiftlock + ESP", 1, CommonButtonsScroll, 40)
+
+shiftLockEspBtn.MouseButton1Click:Connect(function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/catlyn316/Shiftlock-wsjp/refs/heads/main/Mix"))()
-    shiftLockBtn.Text = "鎖定+速度/跳躍: 已載入"
+    shiftLockEspBtn.Text = "Shiftlock+ESP: 已載入"
 end)
 
+-- 2. 移動+視野+穿牆+飄浮 按鈕 (使用新連結)
+local moveViewWallFloatBtn = createButton("移動+視野+穿牆+飄浮", 2, CommonButtonsScroll, 40)
+
+moveViewWallFloatBtn.MouseButton1Click:Connect(function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/catlyn316/Do-something-I-think-of/refs/heads/main/lol"))()
+    moveViewWallFloatBtn.Text = "多功能: 已載入"
+end)
+
+-- ================= 修改處結束 =================
+
 -- infyield按鈕
-local infyieldBtn = createButton("infyield", 2, CommonButtonsScroll, 40)
+local infyieldBtn = createButton("infyield", 3, CommonButtonsScroll, 40)
 
 infyieldBtn.MouseButton1Click:Connect(function()
     loadstring(game:HttpGet('https://raw.githubusercontent.com/edgeiy/infiniteyield/master/source'))()
 end)
 
 -- Freecam/ClickTP 按鈕
-local freecamBtn = createButton("Freecam/ClickTP", 3, CommonButtonsScroll, 40)
+local freecamBtn = createButton("Freecam/ClickTP", 4, CommonButtonsScroll, 40)
 
 freecamBtn.MouseButton1Click:Connect(function()
     loadstring(game:HttpGet('https://raw.githubusercontent.com/catlyn316/Freecam-script/refs/heads/main/Fc'))()
@@ -401,19 +407,17 @@ end)
 -- 自動觸發Prompt功能
 local autoPrompt = false
 local promptConnection = nil
-local autoPromptBtn = createButton("自動觸發Prompt: 關", 4, CommonButtonsScroll, 40)
+local autoPromptBtn = createButton("自動觸發Prompt: 關", 5, CommonButtonsScroll, 40)
 local isTriggering = false
 local isContinuousMode = false
 local lastClickTime = 0
-local doubleClickThreshold = 0.5 -- 雙擊判定時間(秒)
+local doubleClickThreshold = 0.5 
 
 autoPromptBtn.MouseButton1Click:Connect(function()
     local currentTime = tick()
     local timeSinceLastClick = currentTime - lastClickTime
     
-    -- 如果在連續觸發模式中,點擊一次即可解除
     if isContinuousMode then
-        -- 解除連續觸發模式
         isContinuousMode = false
         autoPrompt = false
         isTriggering = false
@@ -428,16 +432,13 @@ autoPromptBtn.MouseButton1Click:Connect(function()
         return
     end
     
-    -- 檢測雙擊
     if timeSinceLastClick <= doubleClickThreshold and timeSinceLastClick > 0 then
-        -- 雙擊 - 進入連續觸發模式
         isContinuousMode = true
         autoPrompt = true
         isTriggering = true
         autoPromptBtn.Text = "自動觸發Prompt: 連續觸發中"
         lastClickTime = 0
         
-        -- 連續觸發循環
         task.spawn(function()
             while isContinuousMode do
                 pcall(function()
@@ -458,27 +459,24 @@ autoPromptBtn.MouseButton1Click:Connect(function()
                         end
                     end
                 end)
-                task.wait(0.5) -- 每0.5秒觸發一次
+                task.wait(0.5) 
             end
         end)
         
         return
     end
     
-    -- 單擊 - 一次性觸發模式
     if isTriggering then
         return
     end
     
     lastClickTime = currentTime
     
-    -- 使用task.spawn避免阻塞雙擊檢測
     task.spawn(function()
         autoPrompt = true
         isTriggering = true
         autoPromptBtn.Text = "自動觸發Prompt: 開"
         
-        -- 開始觸發Prompt
         promptConnection = game:GetService("RunService").Heartbeat:Connect(function()
             pcall(function()
                 local character = LocalPlayer.Character
@@ -500,22 +498,17 @@ autoPromptBtn.MouseButton1Click:Connect(function()
             end)
         end)
         
-        -- 顯示"已觸發"
         task.wait()
         autoPromptBtn.Text = "自動觸發Prompt: 已觸發"
         
-        -- 1秒後自動關閉(只在非連續模式下執行)
         task.wait(1)
         
-        -- 檢查是否進入了連續模式,如果是則不關閉
         if not isContinuousMode then
-            -- 斷開連接
             if promptConnection then
                 promptConnection:Disconnect()
                 promptConnection = nil
             end
             
-            -- 重置狀態
             autoPrompt = false
             isTriggering = false
             autoPromptBtn.Text = "自動觸發Prompt: 關"
@@ -527,7 +520,8 @@ end)
 wait(0.1)
 
 local orderedElements = {
-    shiftLockBtn,
+    shiftLockEspBtn,
+    moveViewWallFloatBtn,
     infyieldBtn,
     freecamBtn,
     autoPromptBtn
@@ -599,17 +593,17 @@ local function joinMostPlayedServer()
     end
 end
 
--- 其他分區 - 按照新順序創建按鈕
+-- ================= 修改處：其他分區（移除透明漂浮平板） =================
 local OtherButtons = {
     createButton("音樂箱", 1, OtherScroll, 40),
-    createButton("透明漂浮平板", 2, OtherScroll, 40),
-    createButton("彈飛無錨定物品", 3, OtherScroll, 40),
-    createButton("傳送到少人服", 4, OtherScroll, 40),
-    createButton("傳送到多人服", 5, OtherScroll, 40),
-    createButton("Remote Spy Mobile", 6, OtherScroll, 40),
-    createButton("bringfly", 7, OtherScroll, 40),
-    createButton("位置固定: 關", 8, OtherScroll, 40),
-    createButton("防掛機: 關", 9, OtherScroll, 40),
+    -- 已刪除「透明漂浮平板」並調整順序
+    createButton("彈飛無錨定物品", 2, OtherScroll, 40),
+    createButton("傳送到少人服", 3, OtherScroll, 40),
+    createButton("傳送到多人服", 4, OtherScroll, 40),
+    createButton("Remote Spy Mobile", 5, OtherScroll, 40),
+    createButton("bringfly", 6, OtherScroll, 40),
+    createButton("位置固定: 關", 7, OtherScroll, 40),
+    createButton("防掛機: 關", 8, OtherScroll, 40),
 }
 
 -- 音樂箱功能
@@ -617,37 +611,34 @@ OtherButtons[1].MouseButton1Click:Connect(function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/catlyn316/Music-box/refs/heads/main/Music%20box"))()
 end)
 
--- 透明漂浮平板功能
-OtherButtons[2].MouseButton1Click:Connect(function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/catlyn316/Float-platform/refs/heads/main/Up%20down"))()
-end)
+-- 原本索引2的漂浮平板已刪除，後面的按鈕索引都提前了
 
--- 彈飛無錨定物品功能
-OtherButtons[3].MouseButton1Click:Connect(function()
+-- 彈飛無錨定物品功能 (現索引2)
+OtherButtons[2].MouseButton1Click:Connect(function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/catlyn316/Ricochet/refs/heads/main/Ricochet"))()
 end)
 
--- 傳送到少人服按鈕
-OtherButtons[4].MouseButton1Click:Connect(function()
-    OtherButtons[4].Text = "跳服中..."
-    OtherButtons[4].TextColor3 = Color3.fromRGB(200, 200, 200)
+-- 傳送到少人服按鈕 (現索引3)
+OtherButtons[3].MouseButton1Click:Connect(function()
+    OtherButtons[3].Text = "跳服中..."
+    OtherButtons[3].TextColor3 = Color3.fromRGB(200, 200, 200)
     joinSmallestServer()
 end)
 
--- 傳送到多人服按鈕
-OtherButtons[5].MouseButton1Click:Connect(function()
-    OtherButtons[5].Text = "跳服中..."
-    OtherButtons[5].TextColor3 = Color3.fromRGB(200, 200, 200)
+-- 傳送到多人服按鈕 (現索引4)
+OtherButtons[4].MouseButton1Click:Connect(function()
+    OtherButtons[4].Text = "跳服中..."
+    OtherButtons[4].TextColor3 = Color3.fromRGB(200, 200, 200)
     joinMostPlayedServer()
 end)
 
--- Remote Spy Mobile按鈕
-OtherButtons[6].MouseButton1Click:Connect(function()
+-- Remote Spy Mobile按鈕 (現索引5)
+OtherButtons[5].MouseButton1Click:Connect(function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/wfrefdewwss/Discord-Custom-Status-24-7/refs/heads/main/requirements.txt"))()
 end)
 
--- bringfly按鈕
-OtherButtons[7].MouseButton1Click:Connect(function()
+-- bringfly按鈕 (現索引6)
+OtherButtons[6].MouseButton1Click:Connect(function()
     loadstring(game:HttpGet('https://raw.githubusercontent.com/catlyn316/Bring-fly/refs/heads/main/Bring%20fly'))()
 end)
 
@@ -656,9 +647,10 @@ local positionLocked = false
 local lockedPosition = nil
 local lockConnection = nil
 
-OtherButtons[8].MouseButton1Click:Connect(function()
+-- 位置固定 (現索引7)
+OtherButtons[7].MouseButton1Click:Connect(function()
     positionLocked = not positionLocked
-    OtherButtons[8].Text = positionLocked and "位置固定: 開" or "位置固定: 關"
+    OtherButtons[7].Text = positionLocked and "位置固定: 開" or "位置固定: 關"
     
     if positionLocked then
         local character = LocalPlayer.Character
@@ -687,13 +679,13 @@ OtherButtons[8].MouseButton1Click:Connect(function()
     end
 end)
 
--- 防掛機功能
+-- 防掛機功能 (現索引8)
 local antiAFK = false
 local virtualUser = game:GetService("VirtualUser")
 
-OtherButtons[9].MouseButton1Click:Connect(function()
+OtherButtons[8].MouseButton1Click:Connect(function()
     antiAFK = not antiAFK
-    OtherButtons[9].Text = antiAFK and "防掛機: 開" or "防掛機: 關"
+    OtherButtons[8].Text = antiAFK and "防掛機: 開" or "防掛機: 關"
 end)
 
 LocalPlayer.Idled:Connect(function()
@@ -709,18 +701,12 @@ local otherLayout = Instance.new("UIListLayout", OtherScroll)
 otherLayout.Padding = UDim.new(0, 5)
 otherLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 
--- 設置 LayoutOrder
-OtherButtons[1].LayoutOrder = 1
-OtherButtons[2].LayoutOrder = 2
-OtherButtons[3].LayoutOrder = 3
-OtherButtons[4].LayoutOrder = 4
-OtherButtons[5].LayoutOrder = 5
-OtherButtons[6].LayoutOrder = 6
-OtherButtons[7].LayoutOrder = 7
-OtherButtons[8].LayoutOrder = 8
-OtherButtons[9].LayoutOrder = 9
+-- 設置 LayoutOrder (重新排序)
+for i = 1, #OtherButtons do
+    OtherButtons[i].LayoutOrder = i
+end
 
--- 分區切換 (邏輯已調整以反映新順序：常用 -> 其他 -> 傳送)
+-- 分區切換
 Section2.MouseButton1Click:Connect(function()
     CommonButtonsScroll.Visible = true
     OtherScroll.Visible = false
@@ -751,9 +737,9 @@ Section1.MouseButton1Click:Connect(function()
     Section1.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
 end)
 
--- 初始化高亮第一個分區按鈕 (現在是常用區 Section2)
+-- 初始化高亮第一個分區按鈕
 Section2.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-Section1.BackgroundColor3 = Color3.fromRGB(85, 85, 105) -- 確保非選中的按鈕顏色正確
+Section1.BackgroundColor3 = Color3.fromRGB(85, 85, 105) 
 Section3.BackgroundColor3 = Color3.fromRGB(85, 85, 105)
 
 -- 清理函數
