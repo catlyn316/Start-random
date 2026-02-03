@@ -101,7 +101,7 @@ local Title = Instance.new("TextLabel", Frame)
 Title.Size = UDim2.new(1, -80, 0, 50)
 Title.Position = UDim2.new(0, 15, 0, 0)
 Title.BackgroundTransparency = 1
-Title.Text = "✨ 貓玲的腳本區 ✨ v0.56" -- 版本號微調
+Title.Text = "✨ 貓玲的腳本區 ✨ v0.57" -- 版本號微調
 Title.Font = Enum.Font.GothamBold
 Title.TextSize = 22
 Title.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -637,8 +637,11 @@ OtherButtons[5].MouseButton1Click:Connect(function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/wfrefdewwss/Discord-Custom-Status-24-7/refs/heads/main/requirements.txt"))()
 end)
 
--- bringfly按鈕 (現索引6)
 OtherButtons[6].MouseButton1Click:Connect(function()
+    loadstring(game:HttpGet('https://raw.githubusercontent.com/catlyn316/Object-selector/refs/heads/main/Gotcha'))()
+end)
+-- bringfly按鈕 (現索引7)
+OtherButtons[7].MouseButton1Click:Connect(function()
     loadstring(game:HttpGet('https://raw.githubusercontent.com/catlyn316/Bring-fly/refs/heads/main/Bring%20fly'))()
 end)
 
@@ -647,10 +650,10 @@ local positionLocked = false
 local lockedPosition = nil
 local lockConnection = nil
 
--- 位置固定 (現索引7)
-OtherButtons[7].MouseButton1Click:Connect(function()
+-- 位置固定 (現索引8)
+OtherButtons[8].MouseButton1Click:Connect(function()
     positionLocked = not positionLocked
-    OtherButtons[7].Text = positionLocked and "位置固定: 開" or "位置固定: 關"
+    OtherButtons[8].Text = positionLocked and "位置固定: 開" or "位置固定: 關"
     
     if positionLocked then
         local character = LocalPlayer.Character
@@ -679,13 +682,13 @@ OtherButtons[7].MouseButton1Click:Connect(function()
     end
 end)
 
--- 防掛機功能 (現索引8)
+-- 防掛機功能 (現索引9)
 local antiAFK = false
 local virtualUser = game:GetService("VirtualUser")
 
-OtherButtons[8].MouseButton1Click:Connect(function()
+OtherButtons[9].MouseButton1Click:Connect(function()
     antiAFK = not antiAFK
-    OtherButtons[8].Text = antiAFK and "防掛機: 開" or "防掛機: 關"
+    OtherButtons[9].Text = antiAFK and "防掛機: 開" or "防掛機: 關"
 end)
 
 LocalPlayer.Idled:Connect(function()
