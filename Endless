@@ -1,3 +1,7 @@
+local update = "✨ 貓玲的腳本區 ✨ v0.57已載入"
+local update2 = "更新：加入物體選擇器"
+
+
 -- 基本服務與玩家
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
@@ -601,9 +605,10 @@ local OtherButtons = {
     createButton("傳送到少人服", 3, OtherScroll, 40),
     createButton("傳送到多人服", 4, OtherScroll, 40),
     createButton("Remote Spy Mobile", 5, OtherScroll, 40),
-    createButton("bringfly", 6, OtherScroll, 40),
-    createButton("位置固定: 關", 7, OtherScroll, 40),
-    createButton("防掛機: 關", 8, OtherScroll, 40),
+    createButton("物體選取器", 6, OtherScroll, 40),
+    createButton("bringfly", 7, OtherScroll, 40),
+    createButton("位置固定: 關", 8, OtherScroll, 40),
+    createButton("防掛機: 關", 9, OtherScroll, 40),
 }
 
 -- 音樂箱功能
@@ -776,3 +781,6 @@ if _G.maolingHubLoaded then
     return
 end
 _G.maolingHubLoaded = true
+
+print(update)
+print(update2)
