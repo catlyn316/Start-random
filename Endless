@@ -639,7 +639,7 @@ end)
 
 -- Remote Spy Mobile按鈕 (現索引5)
 OtherButtons[5].MouseButton1Click:Connect(function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/wfrefdewwss/Discord-Custom-Status-24-7/refs/heads/main/requirements.txt"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/catlyn316/Remote-captor/refs/heads/main/Huh"))()
 end)
 
 OtherButtons[6].MouseButton1Click:Connect(function()
